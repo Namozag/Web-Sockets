@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>WebSocket Chat</title>
+    </head>
+    <body>
+        Chat room : <span id="chatroom"></span> <br />
+        <span id="user"></span> : 
+        <input id="input" type="text" onkeypress="keyPressed(event)" />
+        <!--<input id="submit" type="button" value="Send" onclick="send()" />-->
+        <input id="Close" type="button" value="Bye" onclick="close()" />
+        
+        <pre id="result"></pre>
+        
+        
+        <script>
+            
+            function print(text) {
+                document.getElementById("result").innerHTML += text + "\n";
+            }
+            
+            
+                
+            var room = prompt("Enter Chat room");
+            var user = prompt("Enter User name");
+
+            document.getElementById("chatroom").innerHTML = room;
+            document.getElementById("user").innerHTML = user;
+
+            var websocket = new WebSocket("ws://localhost:8080/chat/speak/" + room + "?user=" + user);
+
+            websocket.onmessage = function(event) {
+                console.log(event);
+                print(event.data);
+            };
+
+            websocket.onclose = function(event) {
+                console.log(event);
+                print("Close: " + event.code + " : " + event.reason);
+            };
+            
+            function keyPressed(e) {
+                console.log(e);
+                e = e || window.event;
+                if(e.keyCode == 13) {
+                    send();
+                } else if(e.keyCode == 27) {
+                    close();
+                }
+            }
+            
+            function send() {
+                message = document.getElementById("input").value;
+                websocket.send(message);
+            }
+            
+            function close() {
+                websocket.close();
+            }
+            
+            
+        </script>
+        
+    </body>
+    
+</html>
